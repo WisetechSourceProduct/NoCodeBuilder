@@ -1,0 +1,518 @@
+{% load static %}
+
+<nav class="nav">
+    <div class="container">
+        <div class="logo">
+            <a href="#"><img src="{% static 'images/WTS_Logo.png' %}" alt="WTS" width="75" height="auto"></a>
+        </div>
+        <div id="mainListDiv" class="main_list">
+            <ul class="navlinks">
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#"> <button>Create Apps!</button></a></li>
+            </ul>
+        </div>
+        <span class="navTrigger">
+            <i></i>
+            <i></i>
+            <i></i>
+        </span>
+    </div>
+</nav>
+
+<style>
+
+    /* Fonts imported form Goggle Fonts */
+    @import url('https://fonts.googleapis.com/css?family=Quicksand:400,500,700');
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Quicksand", sans-serif;
+        font-size: 62.5%;
+        font-size: 10px;
+    }
+
+
+
+    /* Navbar section */
+
+    .nav {
+        width: 100%;
+        height: 65px;
+        position: fixed;
+        line-height: 65px;
+        text-align: center;
+    }
+
+    .nav div.logo {
+        float: left;
+        width: auto;
+        height: auto;
+        padding-left: 3rem;
+    }
+
+    .nav div.logo a {
+        text-decoration: none;
+        color: #fff;
+        font-size: 2.5rem;
+    }
+
+    .nav div.logo a:hover {
+        color: #00E676;
+    }
+
+    .nav div.main_list {
+        height: 65px;
+        float: right;
+    }
+
+    .nav div.main_list ul {
+        width: 100%;
+        height: 65px;
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav div.main_list ul li {
+        width: auto;
+        height: 65px;
+        padding: 0;
+        padding-right: 3rem;
+    }
+
+    .nav div.main_list ul li a {
+        text-decoration: none;
+        color: #fff;
+        line-height: 65px;
+        font-size: 2.4rem;
+    }
+
+    .nav div.main_list ul li a:hover {
+        color: #00E676;
+    }
+
+
+    /* Home section */
+
+
+
+    .navTrigger {
+        display: none;
+    }
+
+    .nav {
+        padding-top: 20px;
+        padding-bottom: 20px;
+        -webkit-transition: all 0.4s ease;
+        transition: all 0.4s ease;
+    }
+
+
+    /* Media qurey section */
+
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .container {
+            margin: 0;
+        }
+    }
+
+    @media screen and (max-width:768px) {
+        .navTrigger {
+            display: block;
+        }
+        .nav div.logo {
+            margin-left: 15px;
+        }
+        .nav div.main_list {
+            width: 100%;
+            height: 0;
+            overflow: hidden;
+        }
+        .nav div.show_list {
+            height: auto;
+            display: none;
+        }
+        .nav div.main_list ul {
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            background-color: #111;
+            /*same background color of navbar*/
+            background-position: center top;
+        }
+        .nav div.main_list ul li {
+            width: 100%;
+            text-align: right;
+        }
+        .nav div.main_list ul li a {
+            text-align: center;
+            width: 100%;
+            font-size: 3rem;
+            padding: 20px;
+        }
+        .nav div.media_button {
+            display: block;
+        }
+    }
+
+
+    /* Animation */
+    /* Inspiration taken from Dicson https://codemyui.com/simple-hamburger-menu-x-mark-animation/ */
+
+    .navTrigger {
+        cursor: pointer;
+        width: 30px;
+        height: 25px;
+        margin: auto;
+        position: absolute;
+        right: 30px;
+        top: 0;
+        bottom: 0;
+    }
+
+    .navTrigger i {
+        background-color: #fff;
+        border-radius: 2px;
+        content: '';
+        display: block;
+        width: 100%;
+        height: 4px;
+    }
+
+    .navTrigger i:nth-child(1) {
+        -webkit-animation: outT 0.8s backwards;
+        animation: outT 0.8s backwards;
+        -webkit-animation-direction: reverse;
+        animation-direction: reverse;
+    }
+
+    .navTrigger i:nth-child(2) {
+        margin: 5px 0;
+        -webkit-animation: outM 0.8s backwards;
+        animation: outM 0.8s backwards;
+        -webkit-animation-direction: reverse;
+        animation-direction: reverse;
+    }
+
+    .navTrigger i:nth-child(3) {
+        -webkit-animation: outBtm 0.8s backwards;
+        animation: outBtm 0.8s backwards;
+        -webkit-animation-direction: reverse;
+        animation-direction: reverse;
+    }
+
+    .navTrigger.active i:nth-child(1) {
+        -webkit-animation: inT 0.8s forwards;
+        animation: inT 0.8s forwards;
+    }
+
+    .navTrigger.active i:nth-child(2) {
+        -webkit-animation: inM 0.8s forwards;
+        animation: inM 0.8s forwards;
+    }
+
+    .navTrigger.active i:nth-child(3) {
+        -webkit-animation: inBtm 0.8s forwards;
+        animation: inBtm 0.8s forwards;
+    }
+
+    @-webkit-keyframes inM {
+        50% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(45deg);
+        }
+    }
+
+    @keyframes inM {
+        50% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(45deg);
+        }
+    }
+
+    @-webkit-keyframes outM {
+        50% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(45deg);
+        }
+    }
+
+    @keyframes outM {
+        50% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(45deg);
+        }
+    }
+
+    @-webkit-keyframes inT {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(9px) rotate(135deg);
+        }
+    }
+
+    @keyframes inT {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(9px) rotate(135deg);
+        }
+    }
+
+    @-webkit-keyframes outT {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(9px) rotate(135deg);
+        }
+    }
+
+    @keyframes outT {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(9px) rotate(135deg);
+        }
+    }
+
+    @-webkit-keyframes inBtm {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(-9px) rotate(135deg);
+        }
+    }
+
+    @keyframes inBtm {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(-9px) rotate(135deg);
+        }
+    }
+
+    @-webkit-keyframes outBtm {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(-9px) rotate(135deg);
+        }
+    }
+
+    @keyframes outBtm {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(-9px) rotate(135deg);
+        }
+    }
+
+    .affix {
+        padding: 0;
+        background-color: #111;
+    }
+
+
+    .myH2 {
+        text-align:center;
+        font-size: 4rem;
+    }
+    .myP {
+        text-align: justify;
+        padding-left:15%;
+        padding-right:15%;
+        font-size: 20px;
+    }
+    @media all and (max-width:700px){
+        .myP {
+            padding:2%;
+        }
+    }
+
+    /*  Style for button*/
+    :root {
+        /* 
+            One-stop magic hue shift
+            We're using oklch(), so these might not be the hue values you are familiar with 
+        See: https://oklch.com/
+        */
+        --hue: 310; /* change me (0-360) */
+        --hue-adjust: 135; /* and me */
+
+        --hue-2: calc(var(--hue) + var(--hue-adjust));
+
+        --page-background: oklch(10% 0.0666 var(--hue));
+        }
+
+        button {
+        --button-background: oklch(20% 0.0666 var(--hue));
+        --text-base: oklch(45% 0.175 var(--hue));
+        --text-hover: oklch(95% 0.145 calc(var(--hue) + 30));
+
+        --shadow-start: oklch(95% 0.145 var(--hue-2));
+        --shadow-end: oklch(60% 0.29 var(--hue));
+
+        /* No color function, so we can use different opacity values */
+        --shadow-inner: 60% 0.29 var(--hue);
+
+        all: unset;
+
+        /* Text */
+        color: var(--text-base);
+        font: 700 1.50rem/1.2 Raleway, sans-serif;
+        letter-spacing: 0.08em;
+        text-align: center;
+
+        /* Button sizing */
+        padding: 0.85em;
+        max-width: 100%;
+        width: 12em;
+
+        /* Button styling */
+        background-color: var(--button-background);
+        background-clip: padding-box;
+        border: 5px solid var(--text-base);
+        border-radius: 2em;
+        cursor: pointer;
+
+        /* Effects */
+        position: relative;
+        transition: 0.25s ease-out;
+
+        /* Set up pseudo elements */
+        &::before,
+        &::after {
+            content: "";
+            border-radius: inherit;
+            transition: inherit;
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        /* Gradient shadow */
+        &::before {
+            /* Position */
+            inset: -0.2em;
+            z-index: -1;
+
+            /* Effect */
+            background: linear-gradient(var(--shadow-start), var(--shadow-end));
+            filter: blur(1.2em) saturate(1.2);
+
+            /* Animation */
+            transform-origin: bottom;
+            transform: scaleY(0.5);
+            opacity: 0;
+        }
+
+        /* Semi-transparent blended box-shadow brightens up the border */
+        &::after {
+            /* Effect */
+            box-shadow: inset 0 0 0 1px #fff, /* inner pixel */
+            0 0 0 4px hsla(0deg, 0%, 100%, 0.5), /* lightened border */
+            1px 1px 0 4px #fff; /* outer pixel */
+            mix-blend-mode: overlay;
+
+            /* Animation */
+            opacity: 0;
+        }
+
+        &:hover,
+        &:focus {
+            color: var(--text-hover);
+
+            /*  Lighten border */
+            border-color: transparent;
+
+            /* Inner shadow */
+            box-shadow:
+            inset 0 1.4em 0 oklch(var(--shadow-inner) / 0.1), /* gloss */
+            inset 0 0 1.4em oklch(var(--shadow-inner) / 0.32), /* inner glow */
+            0 1px 1px oklch(var(--shadow-inner) / 0.32); /* bottom line */
+
+            /* Show effects */
+            &::before,
+            &::after {
+            transform: none;
+            opacity: 1;
+            }
+        }
+        }
+
+
+</style>
+
+
+<!-- Function used to shrink nav bar removing paddings and adding black background -->
+<script>
+    $(window).scroll(function() {
+        if ($(document).scrollTop() > 50) {
+            $('.nav').addClass('affix');
+            console.log("OK");
+        } else {
+            $('.nav').removeClass('affix');
+        }
+    });
+
+    $('.navTrigger').click(function () {
+    $(this).toggleClass('active');
+    console.log("Clicked menu");
+    $("#mainListDiv").toggleClass("show_list");
+    $("#mainListDiv").fadeIn();
+
+});
+
+</script>
+
+
+
