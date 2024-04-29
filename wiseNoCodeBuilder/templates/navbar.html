@@ -24,18 +24,7 @@
 
     /* Fonts imported form Goggle Fonts */
     @import url('https://fonts.googleapis.com/css?family=Quicksand:400,500,700');
-
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Quicksand", sans-serif;
-        font-size: 62.5%;
-        font-size: 10px;
-    }
-
-
+    
 
     /* Navbar section */
 
@@ -51,7 +40,7 @@
         float: left;
         width: auto;
         height: auto;
-        padding-left: 3rem;
+        padding-left: 0.5rem;
     }
 
     .nav div.logo a {
@@ -89,7 +78,7 @@
         text-decoration: none;
         color: #fff;
         line-height: 65px;
-        font-size: 2.4rem;
+        font-size: 20px;
     }
 
     .nav div.main_list ul li a:hover {
@@ -395,7 +384,7 @@
 
         button {
         --button-background: oklch(20% 0.0666 var(--hue));
-        --text-base: oklch(45% 0.175 var(--hue));
+        --text-base: oklch(0.83 0.09 313.18);
         --text-hover: oklch(95% 0.145 calc(var(--hue) + 30));
 
         --shadow-start: oklch(95% 0.145 var(--hue-2));
@@ -403,12 +392,11 @@
 
         /* No color function, so we can use different opacity values */
         --shadow-inner: 60% 0.29 var(--hue);
-
         all: unset;
 
         /* Text */
         color: var(--text-base);
-        font: 700 1.50rem/1.2 Raleway, sans-serif;
+        font: 700 15px/1.2 Raleway, sans-serif;
         letter-spacing: 0.08em;
         text-align: center;
 
