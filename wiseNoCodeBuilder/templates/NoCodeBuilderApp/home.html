@@ -59,7 +59,7 @@ WTS|Home
 </section>
 
 <style>
-
+    
 .masthead .btn {
     border-radius: 20px; /* Adjust the border radius of the button */
     padding: 15px 30px; /* Adjust the padding of the button */
@@ -122,33 +122,49 @@ header.masthead {
 --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 
+
 .service-card {
     opacity: 0;
-    animation: fadeInUp 1s ease forwards;
+    transform: translateY(50px); /* Start with translateY to position the cards below */
+    transition: opacity 0.5s ease, transform 0.5s ease; /* Add transitions for smooth animation */
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.service-card.fade-in-up {
+    opacity: 1;
+    transform: translateY(0); /* Move cards back to their original position */
 }
-
-/* Adjust the delay for each card */
-.service-card:nth-child(1) {
-    animation-delay: 1s;
-}
-.service-card:nth-child(2) {
-    animation-delay: 1.5s;
-}
-.service-card:nth-child(3) {
-    animation-delay: 2s;
-}
-/* Add more as needed */
 
 </style>
+
+<script>
+    // Get all cards
+    const cards = document.querySelectorAll('.service-card');
+
+    // Function to add fade-in-up animation class to elements in viewport
+    function animateElements(entries, observer) {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('fade-in-up');
+                }, index * 200); // Add a delay between each card (adjust as needed)
+            }
+        });
+    }
+
+    // Set up options for intersection observer
+    const options = {
+        root: null, // Use the viewport as the root
+        rootMargin: '0px', // No margin around the root
+        threshold: 0.2 // Trigger animation when at least 50% of the element is visible
+    };
+
+    // Create intersection observer
+    const observer = new IntersectionObserver(animateElements, options);
+
+    // Observe each card
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+
+</script>
 {% endblock %}
