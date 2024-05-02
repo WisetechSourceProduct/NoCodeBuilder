@@ -18,7 +18,7 @@ WTS|Home
 </header>
 <section class="page-section" id="services">
     <div class="container">
-        <div class="text-center">
+        <div class="text-center service-heading" >
             <h2 class="section-heading text-uppercase">Services</h2>
             <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
         </div>
@@ -134,13 +134,25 @@ header.masthead {
     transform: translateY(0); /* Move cards back to their original position */
 }
 
+.service-heading{
+    opacity:0;
+    transition: opacity 1.5s ease
+}
+
+.service-heading.fade-in{
+    opacity:1;
+}
+
+
 </style>
 
 <script>
+
     // Get all cards
     const cards = document.querySelectorAll('.service-card');
+    const serviceSection = document.querySelectorAll(".service-heading");
 
-    // Function to add fade-in-up animation class to elements in viewport
+    // Function to add fade-in-up animation class to elements in viewport for .service-card 
     function animateElements(entries, observer) {
         entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
@@ -151,20 +163,49 @@ header.masthead {
         });
     }
 
-    // Set up options for intersection observer
+    // Set up options for intersection observer for .service-card
     const options = {
         root: null, // Use the viewport as the root
         rootMargin: '0px', // No margin around the root
         threshold: 0.2 // Trigger animation when at least 50% of the element is visible
     };
 
-    // Create intersection observer
+    // Create intersection observer for .service-card
     const observer = new IntersectionObserver(animateElements, options);
 
-    // Observe each card
+    // Observe each card for .service-card
     cards.forEach(card => {
         observer.observe(card);
     });
+
+
+
+    /* for .service-heading */
+    // Function to add fade-in-up animation class to elements in viewport for .service-heading
+    function animateServiceHeading(entries, observer) {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('fade-in');
+                }); // Add a delay between each card (adjust as needed)
+            }
+        });
+    }
+
+    // Set up options for intersection observer for .service-heading
+    const serviceHeadingOptions = {
+        root: null, // Use the viewport as the root
+        rootMargin: '0px', // No margin around the root
+        threshold: 0.2 // Trigger animation when at least 50% of the element is visible
+    };
+
+    // Create intersection observer for .service-heading
+    const observers = new IntersectionObserver(animateServiceHeading, serviceHeadingOptions);
+
+    // Observe each card for .service-heading
+    serviceSection.forEach(serviceHeading => {
+            observers.observe(serviceHeading);
+        });
 
 </script>
 {% endblock %}
