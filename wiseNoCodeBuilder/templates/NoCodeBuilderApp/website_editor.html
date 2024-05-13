@@ -21,7 +21,31 @@
     <script src="https://unpkg.com/grapesjs-blocks-basic"></script> <!--Basic set of blocks-->
     <script src="https://unpkg.com/grapesjs-plugin-forms"></script> <!--Set of form components and blocks-->
     <script src="https://unpkg.com/grapesjs-navbar"></script> <!--Simple navbar component-->
-    <script src="https://unpkg.com/grapesjs-style-gradient"></script> <!---->
+    <script src="https://unpkg.com/grapesjs-style-filter"></script> <!--Style manager filter type-->
+    <script src="{% static 'js/multiple_page.js' %}"></script>
+
+    <!-- project manager cdn-->
+    <link href="https://unpkg.com/grapesjs-project-manager/dist/grapesjs-project-manager.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/grapesjs-project-manager"></script>
+    <style>
+        /* Let's highlight canvas boundaries */
+        #gjs {
+            border: 3px solid #444;
+        }
+        
+        /* Reset some default styling */
+        .gjs-cv-canvas {
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+ 
+        .gjs-block {
+            width: auto;
+            height: auto;
+            min-height: auto;
+        }
+    </style>
 
 </head>
 <body>
@@ -46,6 +70,7 @@
                     <div class="layers-container"></div>
                     <div class="styles-container"></div>
                     <div class="traits-container"></div>
+                    <div class="templates-wrp"></div>
                 </div>
             </div>
         </div> 
@@ -57,14 +82,15 @@
             container: '#gjs',
             // Get the content for the canvas directly from the element
             // As an alternative we could use: `components: '<h1>Hello World Component!</h1>'`,
-            plugins: ["gjs-blocks-basic","grapesjs-plugin-forms", "grapesjs-navbar", ],// adding the external custom blocks
-            pluginsOpts:{},
+            plugins: ["gjs-blocks-basic","grapesjs-plugin-forms", "grapesjs-navbar","grapesjs-style-filter", "grapesjs-project-manager", 'multiple-page-creator'],// adding the external custom blocks
+            pluginsOpts:{'grapesjs-template-manager': {}},
             fromElement: true,
             // Size of the editor
             height: '90vh',
             width: 'auto',
             // Disable the storage manager for the moment
             storageManager: false,
+            pageManager:true,
 
             blockManager: {
                 appendTo: '#blocks',
@@ -195,6 +221,25 @@
                         togglable: false,
                     }],
                 },
+                {
+            id: 'options',
+            el: '.templates-wrp', // Container element for the templates panel
+            buttons: [
+            {
+                id: 'add-page',
+                className: 'fa fa-plus',
+                command: 'add-page',
+                attributes: { title: 'Add Page' },
+            },{
+                id: 'remove-page',
+                className: 'fa fa-minus',
+                command: 'remove-page',
+                attributes: { title: 'Remove Page' },
+                
+
+                }
+            ],
+        }
                 ]
             },
         });
@@ -232,9 +277,29 @@
                     </textarea>`)
                     .open();
                 },
-                }
+                },
+                
             ],
         });
+
+        // editor.Panels.addPanel();
+
+        // editor.Panels.addPanel({
+        //     id: 'views',
+        //     el: '.templates-wrp', // Container element for the templates panel
+        //     buttons: [
+        //     {
+        //         id: 'open-pages',
+        //         className: 'fa fa-file-o',
+        //         attributes: {
+        //             title: 'Take Screenshot'
+        //         },
+        //         command: 'open-pages',
+        //         togglable: false
+        //     }
+        //     ],
+        // });
+
 
         editor.on('run:export-template:before', opts => {
             console.log('Before the command run');
@@ -289,6 +354,24 @@
             },
         });
 
+
+        editor.Commands.add('add-page', {
+            run: () => {
+                // Logic to add a new page
+                const newPage = editor.Pages.add({ name: 'New Page' });
+                editor.set('selectedPage', newPage);
+            },
+        });
+    
+        editor.Commands.add('remove-page', {
+            run: () => {
+                // Logic to remove the selected page
+                const selectedPage = editor.Pages.getSelected();
+                editor.Pages.remove(selectedPage);
+            },
+        });
+
+
         // Code for Responsive Templates
         editor.Commands.add('set-device-desktop', {
             run: editor => editor.setDevice('Desktop')
@@ -297,6 +380,12 @@
         editor.Commands.add('set-device-mobile', {
             run: editor => editor.setDevice('Mobile')
         });
+
+        //Code for Style manager filter
+        editor.StyleManager.addProperty('extra', { extend: 'filter' });
+        editor.StyleManager.addProperty('extra', { extend: 'filter', property: 'backdrop-filter' });
+
+        
     </script>
     
 </body>
