@@ -6,3 +6,7 @@ def home(request):
 
 def sample(request): # Need to remove after complete development
     return render(request, "NoCodeBuilderApp/website_editor.html")
+
+
+def editing(request): # Need to remove after complete development
+    return render(request, "NoCodeBuilderApp/editing.html")
