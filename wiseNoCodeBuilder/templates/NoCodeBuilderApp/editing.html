@@ -5,15 +5,22 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <!-- Bootstrap CDN-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+	<!-- GrapesJs CDN -->
+    <link rel="stylesheet" href="//unpkg.com/grapesjs/dist/css/grapes.min.css">
+    <script src="//unpkg.com/grapesjs"></script>
+
+	<script src="https://unpkg.com/grapesjs-blocks-basic"></script> <!--Basic set of blocks-->
 
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
     <base href="">
-    <title>VvvebJs</title>
+    <title>Editor</title>
     
     <link href="{% static 'css/editor.css' %}" rel="stylesheet">
   </head>
@@ -128,12 +135,13 @@
 									<div class="btn-group responsive-btns me-1 float-end" role="group">
 									  <button class="btn btn-outline-primary btn-sm  btn-add" title="New file" id="new-file-btn" data-vvveb-action="newPage" data-vvveb-shortcut="">
 										   <span>New page</span> <i class="icon-duplicate-ouetline"></i>
+										   <div id="blocks"></div>
 									  </button>
 									  
-									  <!--  &ensp;
+									   &ensp;
 									  <button class="btn btn-link text-dark p-0"  title="Delete file" id="delete-file-btn" data-vvveb-action="deletePage" data-vvveb-shortcut="">
-										  <i class="la la-trash"></i> <small>Delete</small>
-									  </button> -->
+										  <i class="las la-trash"></i> <small>Delete</small>
+									  </button>
 									</div>
 
 								</div>
@@ -190,6 +198,7 @@
 										  <li class="nav-item content-tab">
 											<a class="nav-link active" data-bs-toggle="tab" href="#sections-new-tab" role="tab" aria-controls="components" aria-selected="false">
 												<i class="icon-albums-outline"></i> <div><span>Sections</span></div></a>
+												
 										  </li>
 										  <li class="nav-item style-tab">
 											<a class="nav-link" data-bs-toggle="tab" href="#sections-list" role="tab" aria-controls="sections" aria-selected="true">
@@ -197,6 +206,191 @@
 										  </li>
 										</ul>
 								
+										<script>
+											const editor = grapesjs.init({
+            // Indicate where to init the editor. You can also pass an HTMLElement
+            container: '#gjs',
+            // Get the content for the canvas directly from the element
+            // As an alternative we could use: `components: '<h1>Hello World Component!</h1>'`,
+            canvas: {
+                        styles: ['https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css']
+                    },
+            plugins: ["gjs-blocks-basic","grapesjs-plugin-forms", "grapesjs-navbar","grapesjs-style-filter"],// adding the external custom blocks
+            pluginsOpts:{
+                'grapesjs-indexeddb-ui': {}
+            },
+            fromElement: true,
+            // Size of the editor
+            height: '90vh',
+            width: 'auto',
+            storageManager:{
+                type: 'indexeddb',
+            },
+            pageManager:true,
+
+            blockManager: {
+                appendTo: '#blocks',
+                blocks: []
+            },
+            layerManager: {
+                appendTo: '.layers-container'
+            },
+            selectorManager: {
+                appendTo: '.styles-container'
+            },
+            traitManager: {
+                appendTo: '.traits-container',
+            },
+            deviceManager: {
+                devices: [{
+                    name: 'Desktop',
+                    width: '', // default size
+                }, {
+                    name: 'Mobile',
+                    width: '320px', // this value will be used on canvas width
+                    widthMedia: '480px', // this value will be used in CSS @media
+                }]
+            },
+            styleManager: {
+                appendTo: '.styles-container',
+                sectors: [{
+                    name: 'Dimension',
+                    open: false,
+                    // Use built-in properties
+                    buildProps: ['width', 'min-height', 'padding'],
+                    // Use `properties` to define/override single property
+                    properties: [
+                    {
+                        // Type of the input,
+                        // options: integer | radio | select | color | slider | file | composite | stack
+                        type: 'integer',
+                        name: 'The width', // Label for the property
+                        property: 'width', // CSS property (if buildProps contains it will be extended)
+                        units: ['px', '%'], // Units, available only for 'integer' types
+                        defaults: 'auto', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    }
+                    ]
+                },{
+                    name: 'Extra',
+                    open: false,
+                    buildProps: ['background-color', 'box-shadow', 'custom-prop'],
+                    properties: [
+                    {
+                        id: 'custom-prop',
+                        name: 'Custom Label',
+                        property: 'font-size',
+                        type: 'select',
+                        defaults: '32px',
+                        // List of options, available only for 'select' and 'radio'  types
+                        options: [
+                        { value: '12px', name: 'Tiny' },
+                        { value: '18px', name: 'Medium' },
+                        { value: '32px', name: 'Big' },
+                        ],
+                    }
+                    ]
+                }]
+            },
+
+            panels: {
+                defaults: [{
+                id: 'layers',
+                el: '.panel__right',
+                // Make the panel resizable
+                resizable: {
+                    maxDim: 350,
+                    minDim: 200,
+                    tc: 0, // Top handler
+                    cl: 1, // Left handler
+                    cr: 0, // Right handler
+                    bc: 0, // Bottom handler
+                    // Being a flex child we need to change `flex-basis` property
+                    // instead of the `width` (default)
+                    keyWidth: 'flex-basis',
+                },
+                }, 
+            ]
+            },
+
+            panels: {
+                defaults: [
+                // ...
+                {
+                    id: 'panel-switcher',
+                    el: '.panel__switcher',
+                    buttons: [{
+                        id: 'show-layers',
+                        active: true,
+                        label: 'Layers',
+                        command: 'show-layers',
+                        // Once activated disable the possibility to turn it off
+                        togglable: false,
+                    }, {
+                        id: 'show-style',
+                        active: true,
+                        label: 'Styles',
+                        command: 'show-styles',
+                        togglable: false,
+                    },
+                    {
+                        id: 'show-traits',
+                        active: true,
+                        label: 'Traits',
+                        command: 'show-traits',
+                        togglable: false,
+                    }],
+                },
+                {
+                    id: 'panel-devices',
+                    el: '.panel__devices',
+                    buttons: [{
+                        id: 'device-desktop',
+                        label: 'D',
+                        command: 'set-device-desktop',
+                        active: true,
+                        togglable: false,
+                    }, {
+                        id: 'device-mobile',
+                        label: 'M',
+                        command: 'set-device-mobile',
+                        togglable: false,
+                    }],
+                },
+                {
+            id: 'options',
+            el: '.templates-wrp', // Container element for the templates panel
+            buttons: [
+                {
+                    id: 'open-templates',
+                    className: 'fa fa-folder-o',
+                    attributes: {
+                        title: 'Open projects and templates'
+                    },
+                    command: 'open-templates', //Open modal 
+                },
+            ],
+        },
+        {
+            id: 'views',
+            el: '.templates-wrp', // Container element for the templates panel
+            buttons: [
+                {
+                    id: 'open-pages',
+                    className: 'fa fa-file-o',
+                    attributes: {
+                        title: 'Take Screenshot'
+                    },
+                    command: 'open-pages',
+                    togglable: false
+                },
+            ],
+        }
+                ]
+            },
+        });
+        
+										</script>
 										<div class="tab-content">
 		
 											 <div class="tab-pane" id="sections-list" data-section="style" role="tabpanel" aria-labelledby="style-tab">
@@ -989,12 +1183,13 @@
     </div>
 </div>
 
-<script>
+
 	{% comment %} <script src="{% static 'js/popper.min.js' %}"></script> {% endcomment %}
+	<!-- builder code-->
 	<script src="{% static 'js/builder.js' %}"></script>
 
-	<!-- builder code-->
-<script src="js/builder.js"></script>	
+	
+
     
 
 

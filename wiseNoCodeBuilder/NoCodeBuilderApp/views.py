@@ -1,4 +1,9 @@
 from django.shortcuts import render, HttpResponse
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Pages
+import json
+
 
 # Create your views here.
 def home(request):
@@ -6,7 +11,30 @@ def home(request):
 
 def sample(request): # Need to remove after complete development
     return render(request, "NoCodeBuilderApp/website_editor.html")
+    #return render(request, "NoCodeBuilderApp/sample.html")
 
 
 def editing(request): # Need to remove after complete development
     return render(request, "NoCodeBuilderApp/editing.html")
+
+@csrf_exempt
+def save_pages(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            pages_data = data.get('pages', [])
+
+            # Update existing pages and create new pages
+            for page_data in pages_data:
+                page_id = page_data['id']
+                name = page_data['name']
+                html = page_data['html']
+                css = page_data['css']
+                Pages.objects.update_or_create(id=page_id, defaults={'name': name, 'html': html, 'css': css})
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
