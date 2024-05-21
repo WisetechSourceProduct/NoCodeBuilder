@@ -24,6 +24,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 
     <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .gjs-preview {
+            pointer-events: none;
+            width: 100vw;
+            height: 100vh;
+        }
+
         /* Let's highlight canvas boundaries */
         #gjs {
             border: none;
@@ -89,7 +103,7 @@
         .templates-wrp {
             position: absolute;
             top: 350px;
-            margin-left: 1050px;
+            margin-left: 1025px;
         }
 
         /* Responsive Web Design(Device) */
@@ -140,7 +154,6 @@
         .page-item.active {
             background-color: #e0e0e0;
         }
-
     </style>
 
 </head>
@@ -258,107 +271,53 @@
                     resizable: {
                         maxDim: 350,
                         minDim: 200,
-                        tc: 0,
-                        cl: 1,
-                        cr: 0,
-                        bc: 0,
+                        tc: 0, // Top handler
+                        cl: 1, // Left handler
+                        cr: 0, // Right handler
+                        bc: 0, // Bottom handler
                         keyWidth: 'flex-basis',
                     },
+                }, {
+                    id: 'panel-switcher',
+                    el: '.panel__switcher',
+                    buttons: [{
+                        id: 'show-layers',
+                        active: true,
+                        label: 'Layers',
+                        command: 'show-layers',
+                        togglable: false,
+                    }, {
+                        id: 'show-style',
+                        active: true,
+                        label: 'Styles',
+                        command: 'show-styles',
+                        togglable: false,
+                    }, {
+                        id: 'show-traits',
+                        active: true,
+                        label: 'Traits',
+                        command: 'show-traits',
+                        togglable: false,
+                    }],
+                }, {
+                    id: 'panel-devices',
+                    el: '.panel__devices',
+                    buttons: [{
+                        id: 'device-desktop',
+                        label: 'Desktop',
+                        command: 'set-device-desktop',
+                        active: true,
+                        togglable: false,
+                    }, {
+                        id: 'device-mobile',
+                        label: 'Mobile',
+                        command: 'set-device-mobile',
+                        togglable: false,
+                    }],
                 }]
-            },
-
-            panels: {
-                defaults: [
-                    {
-                        id: 'panel-switcher',
-                        el: '.panel__switcher',
-                        buttons: [{
-                            id: 'show-layers',
-                            active: true,
-                            label: 'Layers',
-                            command: 'show-layers',
-                            togglable: false,
-                        }, {
-                            id: 'show-style',
-                            active: true,
-                            label: 'Styles',
-                            command: 'show-styles',
-                            togglable: false,
-                        }, {
-                            id: 'show-traits',
-                            active: true,
-                            label: 'Traits',
-                            command: 'show-traits',
-                            togglable: false,
-                        }],
-                    },
-                    {
-                        id: 'panel-devices',
-                        el: '.panel__devices',
-                        buttons: [{
-                            id: 'device-desktop',
-                            label: 'D',
-                            command: 'set-device-desktop',
-                            active: true,
-                            togglable: false,
-                        }, {
-                            id: 'device-mobile',
-                            label: 'M',
-                            command: 'set-device-mobile',
-                            togglable: false,
-                        }],
-                    }
-                ]
-            },
-        });
-
-        // Code for top navbar
-        editor.Panels.addPanel({
-            id: 'panel-top',
-            el: '.panel__top',
-        });
-        editor.Panels.addPanel({
-            id: 'basic-actions',
-            el: '.panel__basic-actions',
-            buttons: [
-                {
-                    id: 'visibility',
-                    active: true,
-                    className: 'btn-toggle-borders',
-                    label: 'Outline',
-                    command: 'sw-visibility',
-                }, {
-                    id: 'export',
-                    className: 'btn-open-export',
-                    label: 'Exp',
-                    command: 'export-template',
-                    context: 'export-template',
-                }, {
-                    id: 'show-json',
-                    className: 'btn-show-json',
-                    label: 'JSON',
-                    context: 'show-json',
-                    command(editor) {
-                        editor.Modal.setTitle('Components JSON')
-                            .setContent(`<textarea style="width:100%; height: 250px;">
-                            ${JSON.stringify(editor.getComponents())}
-                        </textarea>`)
-                            .open();
-                    },
-                },
-            ],
-        });
-
-        editor.on('run:export-template:before', opts => {
-            console.log('Before the command run');
-            if (0 /* some condition */) {
-                opts.abort = 1;
             }
         });
-        editor.on('run:export-template', () => console.log('After the command run'));
-        editor.on('abort:export-template', () => console.log('Command aborted'));
 
-        // Code for layers
         editor.Commands.add('show-layers', {
             getRowEl(editor) { return editor.getContainer().closest('.editor-row'); },
             getLayersEl(row) { return row.querySelector('.layers-container') },
@@ -373,7 +332,6 @@
             },
         });
 
-        // Code for styles
         editor.Commands.add('show-styles', {
             getRowEl(editor) { return editor.getContainer().closest('.editor-row'); },
             getStyleEl(row) { return row.querySelector('.styles-container') },
@@ -388,156 +346,119 @@
             },
         });
 
-        // Code for traits
         editor.Commands.add('show-traits', {
-            getTraitsEl(editor) {
-                const row = editor.getContainer().closest('.editor-row');
-                return row.querySelector('.traits-container');
-            },
+            getRowEl(editor) { return editor.getContainer().closest('.editor-row'); },
+            getTraitsEl(row) { return row.querySelector('.traits-container') },
+
             run(editor, sender) {
-                this.getTraitsEl(editor).style.display = '';
+                const tmEl = this.getTraitsEl(this.getRowEl(editor));
+                tmEl.style.display = '';
             },
             stop(editor, sender) {
-                this.getTraitsEl(editor).style.display = 'none';
+                const tmEl = this.getTraitsEl(this.getRowEl(editor));
+                tmEl.style.display = 'none';
             },
         });
 
-        // Code for Responsive Templates
-        editor.Commands.add('set-device-desktop', {
-            run: editor => editor.setDevice('Desktop')
-        });
+        editor.on('load', () => {
+            const pn = editor.Panels;
+            const modal = editor.Modal;
 
-        editor.Commands.add('set-device-mobile', {
-            run: editor => editor.setDevice('Mobile')
-        });
-
-        // Code for Style manager filter
-        editor.StyleManager.addProperty('extra', { extend: 'filter' });
-        editor.StyleManager.addProperty('extra', { extend: 'filter', property: 'backdrop-filter' });
-
-        // Code for page manager
-
-        const pageListEl = document.getElementById('page-list');
-        const newPageNameEl = document.getElementById('new-page-name');
-        const addPageButton = document.getElementById('add-page');
-        const saveAllPagesButton = document.getElementById('save-all-pages'); // Save All Pages button element
-
-        const pages = {};
-        let currentPage = null;
-
-        function switchPage(id) {
-            if (currentPage) {
-                // Save current page data
-                const html = editor.getHtml();
-                const css = editor.getCss();
-                pages[currentPage].html = html;
-                pages[currentPage].css = css;
-            }
-
-            currentPage = id;
-            const { html, css } = pages[id];
-            editor.setComponents(html);
-            editor.setStyle(css);
-            updatePageList();
-        }
-
-        function updatePageList() {
-            pageListEl.innerHTML = '';
-            Object.keys(pages).forEach(id => {
-                const page = pages[id];
-                const pageItemEl = document.createElement('div');
-                pageItemEl.className = 'page-item' + (id === currentPage ? ' active' : '');
-                pageItemEl.innerHTML = `
-                    <span>${page.name}</span>
-                    <div>
-                        <button class="btn btn-sm btn-secondary switch-page" data-id="${id}">Switch</button>
-                        <button class="btn btn-sm btn-danger delete-page" data-id="${id}">Delete</button>
-                    </div>
-                `;
-                pageListEl.appendChild(pageItemEl);
-            });
-
-            // Attach event listeners to switch and delete buttons
-            document.querySelectorAll('.switch-page').forEach(button => {
-                button.addEventListener('click', () => switchPage(button.getAttribute('data-id')));
-            });
-
-            document.querySelectorAll('.delete-page').forEach(button => {
-                button.addEventListener('click', () => deletePage(button.getAttribute('data-id')));
-            });
-        }
-
-        function deletePage(id) {
-            if (confirm('Are you sure you want to delete this page?')) {
-                delete pages[id];
-                if (currentPage === id) {
-                    currentPage = null;
-                    editor.setComponents('');
-                    editor.setStyle('');
+            pn.addButton('options', [{
+                id: 'open-templates',
+                className: 'fa fa-folder-o',
+                command: () => {
+                    modal.setTitle('Saved Templates');
+                    modal.setContent('Saved Templates will be displayed here');
+                    modal.open();
+                },
+                attributes: {
+                    title: 'Open templates'
                 }
-                updatePageList();
-            }
-        }
+            }]);
+        });
+
+        // Preview Command
+        editor.Commands.add('preview', {
+            run(editor) {
+                editor.stopCommand('sw-visibility');
+                editor.getModel().get('Canvas').getElement().style.pointerEvents = 'none';
+            },
+            stop(editor) {
+                editor.runCommand('sw-visibility');
+                editor.getModel().get('Canvas').getElement().style.pointerEvents = 'auto';
+            },
+        });
+
+        const pn = editor.Panels;
+        pn.addButton('options', [{
+            id: 'preview',
+            className: 'fa fa-eye',
+            command: 'preview',
+            togglable: true,
+        }]);
+
+        // Add Page Manager functionality
+        const pageList = document.getElementById('page-list');
+        const newPageName = document.getElementById('new-page-name');
+        const addPageButton = document.getElementById('add-page');
+        const saveAllPagesButton = document.getElementById('save-all-pages');
 
         addPageButton.addEventListener('click', () => {
-            const name = newPageNameEl.value.trim();
-            if (name) {
-                const id = uuid.v4();
-                pages[id] = { id, name, html: '', css: '' };
-                newPageNameEl.value = '';
-                switchPage(id);
-                updatePageList();
+            const pageName = newPageName.value.trim();
+            if (pageName) {
+                const pageId = uuid.v4();
+                const pageItem = document.createElement('div');
+                pageItem.className = 'page-item';
+                pageItem.dataset.id = pageId;
+                pageItem.innerHTML = `
+                    <input type="text" value="${pageName}" readonly />
+                    <button class="btn btn-sm btn-primary" onclick="loadPage('${pageId}')">Load</button>
+                    <button class="btn btn-sm btn-danger" onclick="deletePage('${pageId}')">Delete</button>
+                `;
+                pageList.appendChild(pageItem);
+                savePageData(pageId, pageName, editor.getComponents());
+                newPageName.value = '';
             }
         });
 
+        // Function to save all pages
         saveAllPagesButton.addEventListener('click', () => {
-            // Save current page data before saving all pages
-            if (currentPage) {
-                pages[currentPage].html = editor.getHtml();
-                pages[currentPage].css = editor.getCss();
-            }
-
-            // Retrieve all pages' data
-            const allPagesData = Object.values(pages).map(page => ({
-                id: page.id,
-                name: page.name,
-                html: page.html,
-                css: page.css,
-            }));
-
-            console.log('All Pages Data:', allPagesData);
-
-            // AJAX request to save pages data to the server
-            fetch('{% url "save_pages" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ pages: allPagesData })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Pages saved successfully!');
-                } else {
-                    alert('Failed to save pages.');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving pages:', error);
-                alert('An error occurred while saving pages.');
+            const pageItems = document.querySelectorAll('.page-item');
+            pageItems.forEach(pageItem => {
+                const pageId = pageItem.dataset.id;
+                const pageName = pageItem.querySelector('input').value;
+                savePageData(pageId, pageName, editor.getComponents());
             });
+            alert('All pages saved successfully!');
         });
 
-        // Ensure one page is active on start
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialPageId = uuid.v4();
-            pages[initialPageId] = { id: initialPageId, name: 'Home Page', html: '', css: '' };
-            switchPage(initialPageId);
-            updatePageList();
-        });
+        function loadPage(pageId) {
+            const pageData = localStorage.getItem(pageId);
+            if (pageData) {
+                const { components } = JSON.parse(pageData);
+                editor.setComponents(components);
+                document.querySelectorAll('.page-item').forEach(item => item.classList.remove('active'));
+                document.querySelector(`.page-item[data-id="${pageId}"]`).classList.add('active');
+            }
+        }
+
+        function deletePage(pageId) {
+            if (confirm('Are you sure you want to delete this page?')) {
+                localStorage.removeItem(pageId);
+                document.querySelector(`.page-item[data-id="${pageId}"]`).remove();
+                editor.setComponents('');
+            }
+        }
+
+        function savePageData(pageId, pageName, components) {
+            const pageData = {
+                id: pageId,
+                name: pageName,
+                components: components.toJSON(),
+            };
+            localStorage.setItem(pageId, JSON.stringify(pageData));
+        }
     </script>
-
 </body>
 </html>

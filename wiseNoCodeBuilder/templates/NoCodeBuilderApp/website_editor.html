@@ -24,6 +24,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 
     <style>
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .gjs-preview {
+            pointer-events: none;
+            width: 100vw;
+            height: 100vh;
+        }
+
         /* Let's highlight canvas boundaries */
         #gjs {
             border: none;
@@ -273,6 +288,11 @@
                         id: 'panel-switcher',
                         el: '.panel__switcher',
                         buttons: [{
+                            id: 'preview',
+                            className: 'fa fa-eye',
+                            command: 'preview',
+                            togglable: true,
+                        },{
                             id: 'show-layers',
                             active: true,
                             label: 'Layers',
@@ -415,8 +435,21 @@
         editor.StyleManager.addProperty('extra', { extend: 'filter' });
         editor.StyleManager.addProperty('extra', { extend: 'filter', property: 'backdrop-filter' });
 
+        //Code for preview
+        editor.Commands.add('preview', {
+            run(editor) {
+                editor.stopCommand('sw-visibility');
+                editor.getModel().get('Canvas').refresh();
+                editor.Canvas.getBody().classList.add('gjs-preview');
+                editor.Panels.getButton('panel-switcher', 'preview').set('active', true);
+            },
+            stop(editor) {
+                editor.Canvas.getBody().classList.remove('gjs-preview');
+                editor.Panels.getButton('panel-switcher', 'preview').set('active', false);
+            }
+        });
+        
         // Code for page manager
-
         const pageListEl = document.getElementById('page-list');
         const newPageNameEl = document.getElementById('new-page-name');
         const addPageButton = document.getElementById('add-page');
@@ -507,6 +540,7 @@
 
             console.log('All Pages Data:', allPagesData);
 
+
             // AJAX request to save pages data to the server
             fetch('{% url "save_pages" %}', {
                 method: 'POST',
@@ -537,6 +571,7 @@
             switchPage(initialPageId);
             updatePageList();
         });
+    
     </script>
 
 </body>

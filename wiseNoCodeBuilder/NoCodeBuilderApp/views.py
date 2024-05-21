@@ -30,8 +30,7 @@ def save_pages(request):
                 name = page_data['name']
                 html = page_data['html']
                 css = page_data['css']
-                Pages.objects.update_or_create(id=page_id, defaults={'name': name, 'html': html, 'css': css})
-
+                Pages.objects.update_or_create(id=page_id, defaults={"name":name, "html":html, "css":css, "description":"no desc"})
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})

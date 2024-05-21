@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+import datetime as dt
 
 # Create your models here.
 
@@ -9,8 +10,8 @@ class Pages(models.Model):
     description = models.CharField(max_length=255)
     html = models.TextField()
     css = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=dt.datetime.now())
+    updated_at = models.DateTimeField(default=dt.datetime.now())
 
     def __str__(self):
         return self.name
