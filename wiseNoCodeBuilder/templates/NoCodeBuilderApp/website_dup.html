@@ -34,22 +34,29 @@
 
         .gjs-preview {
             pointer-events: none;
-            width: 100vw;
-            height: 100vh;
         }
 
-        /* Let's highlight canvas boundaries */
+        .fullscreen-editor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
         #gjs {
             border: none;
         }
-        
-        /* Reset some default styling */
+
         .gjs-cv-canvas {
             top: 0;
             width: 100%;
             height: 100%;
         }
- 
+
         .gjs-block {
             width: auto;
             height: auto;
@@ -58,17 +65,15 @@
 
         #blocks {
             width: auto;
-            max-height: 90vh; /* To change the height of the component block */
+            max-height: 90vh;
             overflow-y: scroll;
         }
 
-        /* Code for top navbar */
         .panel__top {
             padding: 0;
             width: 100%;
             display: flex;
             position: initial;
-            justify-content: center;
             justify-content: space-between;
         }
 
@@ -76,7 +81,6 @@
             position: initial;
         }
 
-        /* Layer Block */
         .editor-row {
             display: flex;
             justify-content: flex-start;
@@ -106,12 +110,10 @@
             margin-left: 1025px;
         }
 
-        /* Responsive Web Design(Device) */
         .panel__devices {
             position: initial;
         }
 
-        /* Page manager */
         .page-manager {
             padding: 10px;
             background-color: #f0f0f0;
@@ -154,6 +156,20 @@
         .page-item.active {
             background-color: #e0e0e0;
         }
+
+        .back-button {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10000;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
 
 </head>
@@ -184,13 +200,15 @@
                     <div class="page-manager">
                         <input type="text" id="new-page-name" placeholder="New Page Name">
                         <button id="add-page" class="btn btn-primary btn-sm">Add Page</button>
-                        <button id="save-all-pages" class="btn btn-primary btn-sm">Save All Pages</button> <!-- Added Save All Pages button -->
+                        <button id="save-all-pages" class="btn btn-primary btn-sm">Save All Pages</button>
                         <div class="page-list" id="page-list"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <button id="back-button" class="back-button">Back to Edit</button>
 
     <script>
         const editor = grapesjs.init({
@@ -220,11 +238,11 @@
             deviceManager: {
                 devices: [{
                     name: 'Desktop',
-                    width: '', // default size
+                    width: '',
                 }, {
                     name: 'Mobile',
-                    width: '320px', // this value will be used on canvas width
-                    widthMedia: '480px', // this value will be used in CSS @media
+                    width: '320px',
+                    widthMedia: '480px',
                 }]
             },
             styleManager: {
@@ -258,25 +276,59 @@
                                 { value: '12px', name: 'Tiny' },
                                 { value: '18px', name: 'Medium' },
                                 { value: '32px', name: 'Big' },
-                            ],
+                            ]
                         }
                     ]
                 }]
             },
-
             panels: {
                 defaults: [{
-                    id: 'layers',
-                    el: '.panel__right',
-                    resizable: {
-                        maxDim: 350,
-                        minDim: 200,
-                        tc: 0, // Top handler
-                        cl: 1, // Left handler
-                        cr: 0, // Right handler
-                        bc: 0, // Bottom handler
-                        keyWidth: 'flex-basis',
-                    },
+                    id: 'panel-top',
+                    el: '.panel__top',
+                }, {
+                    id: 'basic-actions',
+                    el: '.panel__basic-actions',
+                    buttons: [
+                        {
+                            id: 'visibility',
+                            active: true,
+                            label: '<u>Visibility</u>',
+                            command: 'sw-visibility',
+                        }, {
+                            id: 'export',
+                            className: 'btn-open-export',
+                            label: 'Export',
+                            command: 'export-template',
+                            context: 'export-template',
+                        }, {
+                            id: 'show-json',
+                            className: 'btn-show-json',
+                            label: 'Show JSON',
+                            context: 'show-json',
+                            command(editor) {
+                                editor.Modal.setTitle('Components JSON')
+                                    .setContent(`<textarea style="width:100%; height: 250px;">
+                                        ${JSON.stringify(editor.getComponents())}
+                                    </textarea>`)
+                                    .open();
+                            },
+                        }
+                    ],
+                }, {
+                    id: 'panel-devices',
+                    el: '.panel__devices',
+                    buttons: [{
+                        id: 'device-desktop',
+                        label: 'D',
+                        command: 'set-device-desktop',
+                        active: true,
+                        togglable: false,
+                    }, {
+                        id: 'device-mobile',
+                        label: 'M',
+                        command: 'set-device-mobile',
+                        togglable: false,
+                    }],
                 }, {
                     id: 'panel-switcher',
                     el: '.panel__switcher',
@@ -298,24 +350,22 @@
                         label: 'Traits',
                         command: 'show-traits',
                         togglable: false,
-                    }],
-                }, {
-                    id: 'panel-devices',
-                    el: '.panel__devices',
-                    buttons: [{
-                        id: 'device-desktop',
-                        label: 'Desktop',
-                        command: 'set-device-desktop',
-                        active: true,
-                        togglable: false,
                     }, {
-                        id: 'device-mobile',
-                        label: 'Mobile',
-                        command: 'set-device-mobile',
-                        togglable: false,
+                        id: 'preview',
+                        label: 'Preview',
+                        command: 'preview',
                     }],
-                }]
-            }
+                }],
+            },
+        });
+
+        // Define the commands for the buttons
+        editor.Commands.add('set-device-desktop', {
+            run: editor => editor.setDevice('Desktop')
+        });
+
+        editor.Commands.add('set-device-mobile', {
+            run: editor => editor.setDevice('Mobile')
         });
 
         editor.Commands.add('show-layers', {
@@ -347,118 +397,123 @@
         });
 
         editor.Commands.add('show-traits', {
-            getRowEl(editor) { return editor.getContainer().closest('.editor-row'); },
-            getTraitsEl(row) { return row.querySelector('.traits-container') },
+            getTraitsEl(editor) { return editor.getContainer().closest('.editor-row').querySelector('.traits-container') },
 
             run(editor, sender) {
-                const tmEl = this.getTraitsEl(this.getRowEl(editor));
-                tmEl.style.display = '';
+                this.getTraitsEl(editor).style.display = '';
             },
             stop(editor, sender) {
-                const tmEl = this.getTraitsEl(this.getRowEl(editor));
-                tmEl.style.display = 'none';
+                this.getTraitsEl(editor).style.display = 'none';
             },
         });
 
-        editor.on('load', () => {
-            const pn = editor.Panels;
-            const modal = editor.Modal;
-
-            pn.addButton('options', [{
-                id: 'open-templates',
-                className: 'fa fa-folder-o',
-                command: () => {
-                    modal.setTitle('Saved Templates');
-                    modal.setContent('Saved Templates will be displayed here');
-                    modal.open();
-                },
-                attributes: {
-                    title: 'Open templates'
-                }
-            }]);
-        });
-
-        // Preview Command
+        // Extend the 'preview' command to toggle full-screen mode
         editor.Commands.add('preview', {
             run(editor) {
+                const editorContainer = editor.getContainer();
+                editorContainer.classList.add('fullscreen-editor');
                 editor.stopCommand('sw-visibility');
-                editor.getModel().get('Canvas').getElement().style.pointerEvents = 'none';
+                editor.runCommand('sw-visibility');
+                document.getElementById('back-button').style.display = 'block'; // Show back button
             },
             stop(editor) {
+                const editorContainer = editor.getContainer();
+                editorContainer.classList.remove('fullscreen-editor');
+                editor.stopCommand('sw-visibility');
                 editor.runCommand('sw-visibility');
-                editor.getModel().get('Canvas').getElement().style.pointerEvents = 'auto';
+                document.getElementById('back-button').style.display = 'none'; // Hide back button
             },
         });
 
-        const pn = editor.Panels;
-        pn.addButton('options', [{
-            id: 'preview',
-            className: 'fa fa-eye',
-            command: 'preview',
-            togglable: true,
-        }]);
-
-        // Add Page Manager functionality
-        const pageList = document.getElementById('page-list');
-        const newPageName = document.getElementById('new-page-name');
-        const addPageButton = document.getElementById('add-page');
-        const saveAllPagesButton = document.getElementById('save-all-pages');
-
-        addPageButton.addEventListener('click', () => {
-            const pageName = newPageName.value.trim();
-            if (pageName) {
-                const pageId = uuid.v4();
-                const pageItem = document.createElement('div');
-                pageItem.className = 'page-item';
-                pageItem.dataset.id = pageId;
-                pageItem.innerHTML = `
-                    <input type="text" value="${pageName}" readonly />
-                    <button class="btn btn-sm btn-primary" onclick="loadPage('${pageId}')">Load</button>
-                    <button class="btn btn-sm btn-danger" onclick="deletePage('${pageId}')">Delete</button>
-                `;
-                pageList.appendChild(pageItem);
-                savePageData(pageId, pageName, editor.getComponents());
-                newPageName.value = '';
-            }
+        // Back button functionality
+        document.getElementById('back-button').addEventListener('click', () => {
+            editor.stopCommand('preview');
         });
 
-        // Function to save all pages
-        saveAllPagesButton.addEventListener('click', () => {
-            const pageItems = document.querySelectorAll('.page-item');
-            pageItems.forEach(pageItem => {
-                const pageId = pageItem.dataset.id;
-                const pageName = pageItem.querySelector('input').value;
-                savePageData(pageId, pageName, editor.getComponents());
-            });
-            alert('All pages saved successfully!');
-        });
+        // Example pages array to hold multiple pages
+        const pages = [];
 
-        function loadPage(pageId) {
-            const pageData = localStorage.getItem(pageId);
-            if (pageData) {
-                const { components } = JSON.parse(pageData);
-                editor.setComponents(components);
-                document.querySelectorAll('.page-item').forEach(item => item.classList.remove('active'));
-                document.querySelector(`.page-item[data-id="${pageId}"]`).classList.add('active');
-            }
-        }
-
-        function deletePage(pageId) {
-            if (confirm('Are you sure you want to delete this page?')) {
-                localStorage.removeItem(pageId);
-                document.querySelector(`.page-item[data-id="${pageId}"]`).remove();
-                editor.setComponents('');
-            }
-        }
-
-        function savePageData(pageId, pageName, components) {
-            const pageData = {
+        // Function to create a new page
+        function createNewPage(name) {
+            const pageId = `page-${Date.now()}`;
+            const page = {
                 id: pageId,
-                name: pageName,
-                components: components.toJSON(),
+                name: name,
+                content: '', // This will hold the HTML content of the page
+                components: editor.getComponents(),
+                style: editor.getStyle(),
             };
-            localStorage.setItem(pageId, JSON.stringify(pageData));
+            pages.push(page);
+            return page;
         }
+
+        // Function to switch to a specific page
+        function switchToPage(pageId) {
+            const page = pages.find(p => p.id === pageId);
+            if (page) {
+                editor.setComponents(page.components);
+                editor.setStyle(page.style);
+            }
+        }
+
+        // Function to save the current page content
+        function saveCurrentPageContent(pageId) {
+            const page = pages.find(p => p.id === pageId);
+            if (page) {
+                page.components = editor.getComponents();
+                page.style = editor.getStyle();
+            }
+        }
+
+        // Function to add a page to the page list
+        function addPageToList(page) {
+            const pageList = document.getElementById('page-list');
+            const pageItem = document.createElement('div');
+            pageItem.className = 'page-item';
+            pageItem.id = page.id;
+            pageItem.innerHTML = `
+                <input type="text" value="${page.name}">
+                <button class="btn btn-primary btn-sm switch-page">Switch</button>
+                <button class="btn btn-danger btn-sm delete-page">Delete</button>
+            `;
+            pageList.appendChild(pageItem);
+
+            // Attach event listeners to the buttons
+            pageItem.querySelector('.switch-page').addEventListener('click', () => {
+                saveCurrentPageContent(editor.getCurrentPageId());
+                switchToPage(page.id);
+            });
+
+            pageItem.querySelector('.delete-page').addEventListener('click', () => {
+                pageList.removeChild(pageItem);
+                pages.splice(pages.indexOf(page), 1);
+            });
+        }
+
+        // Add page button click event
+        document.getElementById('add-page').addEventListener('click', () => {
+            const pageNameInput = document.getElementById('new-page-name');
+            const pageName = pageNameInput.value.trim();
+            if (pageName) {
+                const newPage = createNewPage(pageName);
+                addPageToList(newPage);
+                pageNameInput.value = '';
+            }
+        });
+
+        // Save all pages button click event
+        document.getElementById('save-all-pages').addEventListener('click', () => {
+            const allPagesContent = pages.map(page => ({
+                id: page.id,
+                name: page.name,
+                content: page.content,
+                components: page.components,
+                style: page.style,
+            }));
+            console.log(JSON.stringify(allPagesContent));
+            // Here you can make an AJAX request to save the pages to your server
+        });
+
     </script>
 </body>
 </html>

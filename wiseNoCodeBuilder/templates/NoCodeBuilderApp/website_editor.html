@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="//unpkg.com/grapesjs/dist/css/grapes.min.css">
     <script src="//unpkg.com/grapesjs"></script>
 
+    <!-- Jquery and AJAX CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
     <!-- GrapesJs Plugins -->
     <script src="https://unpkg.com/grapesjs-blocks-basic"></script> <!--Basic set of blocks-->
     <script src="https://unpkg.com/grapesjs-plugin-forms"></script> <!--Set of form components and blocks-->
@@ -37,6 +40,31 @@
             pointer-events: none;
             width: 100vw;
             height: 100vh;
+        }
+
+        .fullscreen-editor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .back-button {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10000;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
         /* Let's highlight canvas boundaries */
@@ -194,6 +222,8 @@
         </div>
     </div>
 
+    <button id="back-button" class="back-button">Back to Edit</button>
+
     <script>
         const editor = grapesjs.init({
             container: '#gjs',
@@ -291,7 +321,10 @@
                             id: 'preview',
                             className: 'fa fa-eye',
                             command: 'preview',
-                            togglable: true,
+                        },{
+                            id:'delete',
+                            className: 'fa fa-trash',
+                            command:'delete',
                         },{
                             id: 'show-layers',
                             active: true,
@@ -435,19 +468,41 @@
         editor.StyleManager.addProperty('extra', { extend: 'filter' });
         editor.StyleManager.addProperty('extra', { extend: 'filter', property: 'backdrop-filter' });
 
-        //Code for preview
+        // Extend the 'preview' command to toggle full-screen mode
         editor.Commands.add('preview', {
             run(editor) {
+                const editorContainer = editor.getContainer();
+                editorContainer.classList.add('fullscreen-editor');
                 editor.stopCommand('sw-visibility');
-                editor.getModel().get('Canvas').refresh();
-                editor.Canvas.getBody().classList.add('gjs-preview');
-                editor.Panels.getButton('panel-switcher', 'preview').set('active', true);
-            },
-            stop(editor) {
-                editor.Canvas.getBody().classList.remove('gjs-preview');
-                editor.Panels.getButton('panel-switcher', 'preview').set('active', false);
+                editor.runCommand('sw-visibility');
+                document.getElementById('back-button').style.display = 'block'; //Show back button
             }
         });
+
+        //Code for delete the current page
+        editor.Commands.add('delete',{
+            run(editor){
+                if (currentPage) {
+                    const currentPageData = pages[currentPage];
+                    if(confirm(`Are you sure to delete ${currentPageData.name}`)){
+                        currentPageData.html = '';
+                        currentPageData.css = '';
+                        editor.setComponents('');
+                        editor.setStyle('');
+                    }  
+                }
+            }
+        })
+
+        // Back button functionality
+        document.getElementById('back-button').addEventListener('click', () => {
+            const editorContainer = editor.getContainer();
+            editorContainer.classList.remove('fullscreen-editor');
+            editor.stopCommand('sw-visibility');
+            editor.runCommand('sw-visibility');
+            document.getElementById('back-button').style.display='none'; // Hide back button
+        });
+
         
         // Code for page manager
         const pageListEl = document.getElementById('page-list');
