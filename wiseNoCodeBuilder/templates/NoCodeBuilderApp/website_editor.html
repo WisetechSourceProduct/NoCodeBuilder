@@ -626,6 +626,86 @@
             switchPage(initialPageId);
             updatePageList();
         });
+
+
+        // Code for adding page name to the href of link
+        // Function to update the options for the href trait
+        function updateHrefTraitOptions() {
+            const pageOptions = Object.values(pages).map(page => ({
+                id: page.id,
+                name: page.name,
+                value: `#${page.name.replace(/\s+/g, '-').toLowerCase()}` // Generating a URL-friendly page name
+            }));
+            return pageOptions;
+        }
+
+        // Adding a new link block with href trait
+        editor.BlockManager.add('link-block', {
+            label: 'Link',
+            content: '<a href="#">Link</a>',
+            category: 'Basic',
+        });
+
+        // Adding a trait to the link component
+        editor.TraitManager.addType('href-pages', {
+            createInput({ trait }) {
+                const el = document.createElement('select');
+                const options = updateHrefTraitOptions();
+                options.forEach(option => {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = option.value;
+                    optionEl.innerText = option.name;
+                    el.appendChild(optionEl);
+                });
+                return el;
+            },
+            onEvent({ elInput, component }) {
+                component.set('attributes', {
+                    ...component.get('attributes'),
+                    href: elInput.value
+                });
+            },
+        });
+
+        // Apply the trait to link components
+        editor.Components.addType('link', {
+            model: {
+                defaults: {
+                    traits: [
+                        {
+                            type: 'href-pages',
+                            label: 'Href',
+                            name: 'href',
+                        }
+                    ],
+                }
+            }
+        });
+
+        // Call this function to update href trait options when the page list changes
+        function refreshHrefTraitOptions() {
+            const options = updateHrefTraitOptions();
+            const links = editor.DomComponents.getWrapper().findType('link');
+            links.forEach(link => {
+                const trait = link.getTrait('href');
+                if (trait) {
+                    trait.set('options', options);
+                }
+            });
+        }
+
+        // Ensure the href trait options are updated whenever a new page is added or deleted
+        addPageButton.addEventListener('click', () => {
+            const name = newPageNameEl.value.trim();
+            if (name) {
+                const id = uuid.v4();
+                pages[id] = { id, name, html: '', css: '' };
+                newPageNameEl.value = '';
+                switchPage(id);
+                updatePageList();
+                refreshHrefTraitOptions(); // Update options
+            }
+        });
     
     </script>
 
