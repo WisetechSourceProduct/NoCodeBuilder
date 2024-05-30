@@ -26,6 +26,9 @@
     <!-- UUID library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 
+    <!-- Including CSRF token as a hidden element in a meta tag -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
     <style>
 
         body, html {
@@ -221,7 +224,7 @@
             </div>
         </div>
     </div>
-
+    
     <button id="back-button" class="back-button">Back to Edit</button>
 
     <script>
@@ -238,7 +241,28 @@
             storageManager: false,
             blockManager: {
                 appendTo: '#blocks',
-                blocks: []
+                blocks: [{
+                        id: 'form',
+                        label: 'Form',
+                        content: `
+                            <form action="/submit-form/" method="POST">
+                                <!-- CSRF token will be appended here by JavaScript -->
+                                <div>
+                                    <label for="name">Name</label>
+                                    <input type="text" name="name" id="name" required />
+                                </div>
+                                <div>
+                                    <label for="email">Email</label>
+                                    <input type="email" name="email" id="email" required />
+                                </div>
+                                <div>
+                                    <label for="message">Message</label>
+                                    <textarea name="message" id="message" required></textarea>
+                                </div>
+                                <button type="submit">Submit</button>
+                            </form>
+                        `,
+                    },]
             },
             layerManager: {
                 appendTo: '.layers-container'
@@ -706,8 +730,57 @@
                 refreshHrefTraitOptions(); // Update options
             }
         });
-    
+
+        // Code for adding csrf_token to the form for connecting to the database
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            if (csrfToken) {
+                // Adding an observer to monitor DOM changes in the editor
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1 && node.tagName === 'FORM') {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'csrfmiddlewaretoken';
+                                input.value = csrfToken;
+                                node.appendChild(input);
+                            }
+                        });
+                    });
+                });
+
+                // Ensure the editor is fully loaded before accessing the body
+                editor.on('load', () => {
+                    const iframe = editor.Canvas.getFrameEl();
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const targetNode = iframeDoc.body;
+                    if (targetNode) {
+                        const config = { childList: true, subtree: true };
+                        observer.observe(targetNode, config);
+
+                        // Also, handle already existing forms in the editor
+                        const forms = targetNode.querySelectorAll('form');
+                        forms.forEach((form) => {
+                            if (!form.querySelector('input[name="csrfmiddlewaretoken"]')) {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'csrfmiddlewaretoken';
+                                input.value = csrfToken;
+                                form.appendChild(input);
+                            }
+                        });
+                    } else {
+                        console.error('Editor canvas body not found');
+                    }
+                });
+            } else {
+                console.error('CSRF token element not found');
+            }
+        
+           
     </script>
+    
 
 </body>
 </html>

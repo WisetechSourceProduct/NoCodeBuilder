@@ -1,7 +1,8 @@
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Pages
+from .models import Pages, FormSubmission
+from .forms import DynamicForm
 import json
 
 
@@ -9,9 +10,9 @@ import json
 def home(request):
     return render(request, "NoCodeBuilderApp/home.html")
 
+
 def sample(request): # Need to remove after complete development
     return render(request, "NoCodeBuilderApp/website_editor.html")
-    #return render(request, "NoCodeBuilderApp/sample.html")
 
 
 def editing(request): # Need to remove after complete development
@@ -31,6 +32,17 @@ def save_pages(request):
                 html = page_data['html']
                 css = page_data['css']
                 Pages.objects.update_or_create(id=page_id, defaults={"name":name, "html":html, "css":css, "description":"no desc"})
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def handle_form_submission(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            FormSubmission.objects.create(form_data=data)
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})

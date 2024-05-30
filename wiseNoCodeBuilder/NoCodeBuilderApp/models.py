@@ -15,4 +15,10 @@ class Pages(models.Model):
 
     def __str__(self):
         return self.name
+    
 
+class FormSubmission(models.Model):
+    form_data = models.JSONField()  # Storing form data as JSON
+
+    def __str__(self):
+        return str(self.form_data)
