@@ -9,14 +9,10 @@ import json
 # Create your views here.
 def home(request):
     return render(request, "NoCodeBuilderApp/home.html")
+    #home
 
-
-def sample(request): # Need to remove after complete development
+def website_editor(request):
     return render(request, "NoCodeBuilderApp/website_editor.html")
-
-
-def editing(request): # Need to remove after complete development
-    return render(request, "NoCodeBuilderApp/editing.html")
 
 @csrf_exempt
 def save_pages(request):
