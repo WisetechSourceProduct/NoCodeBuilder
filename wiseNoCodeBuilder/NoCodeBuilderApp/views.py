@@ -10,6 +10,7 @@ import json
 def home(request):
     return render(request, "NoCodeBuilderApp/home.html")
     #home
+    #Change
 
 def website_editor(request):
     return render(request, "NoCodeBuilderApp/website_editor.html")
